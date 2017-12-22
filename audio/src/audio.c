@@ -140,37 +140,6 @@ void SelectLineIn(void) {
  * @param	u32NrSamples is the number of samples to read and output.
  * @return	none.
  *****************************************************************************/
-void LineInLineOutAudioStraight(unsigned long u32NrSamples)
-{
-	u32  temp, u32Temp;
-	// Use Left/Right input mixers (MIXER1 and MIXER2 output) and set them to 6 dB
-	AudioWriteToReg(R23_PLAYBACK_MIXER_LEFT_CONTROL_1, 0x08);
-	AudioWriteToReg(R25_PLAYBACK_MIXER_RIGHT_CONTROL_1, 0x80);
-	// Enable Mixer3 and Mixer4
-	AudioWriteToReg(R22_PLAYBACK_MIXER_LEFT_CONTROL_0, 0x01);
-	AudioWriteToReg(R24_PLAYBACK_MIXER_RIGHT_CONTROL_0, 0x01);
-	// Enable Left/Right Headphone out
-	AudioWriteToReg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, 0xE7);
-	AudioWriteToReg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, 0xE7);
-	for(temp=0; temp < u32NrSamples; temp++)
-	{
-		do //wait for RX data to become available
-		{
-			u32Temp = Xil_In32(I2S_STATUS_REG);
-		} while ( u32Temp == 0);
-		Xil_Out32(I2S_STATUS_REG, 0x00000001); //Clear data rdy bit
-
-		Xil_Out32(I2S_DATA_TX_L_REG, Xil_In32(I2S_DATA_RX_L_REG));	// left
-		Xil_Out32(I2S_DATA_TX_R_REG, Xil_In32(I2S_DATA_RX_R_REG));	// right
-	}
-	AudioWriteToReg(R23_PLAYBACK_MIXER_LEFT_CONTROL_1, 0x00);
-	AudioWriteToReg(R25_PLAYBACK_MIXER_RIGHT_CONTROL_1, 0x00);
-	AudioWriteToReg(R22_PLAYBACK_MIXER_LEFT_CONTROL_0, 0x00);
-	AudioWriteToReg(R24_PLAYBACK_MIXER_RIGHT_CONTROL_0, 0x00);
-	AudioWriteToReg(R29_PLAYBACK_HEADPHONE_LEFT_VOLUME_CONTROL, 0xE5); // Mute LHP
-	AudioWriteToReg(R30_PLAYBACK_HEADPHONE_RIGHT_VOLUME_CONTROL, 0xE5); // Mute RHP
-}
-
 void AudioStraight(unsigned long u32NrSamples)
 {
 	u32  temp, u32Temp;
